@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Server Reboot</title>
+</head>
+<body>
+  <h1>Server Reboot</h1>
+  <p>Enter your API key and click the button below to reboot the server:</p>
+  <input type="text" id="apiKeyInput" placeholder="Enter API Key">
+
+
+  <button id="rebootButton">Reboot Server</button>
+  <button id="enableIpForwardingButton">Enable IP Forwarding</button>
+  <p id="message"></p>
+  <script>
+    document.getElementById('rebootButton').addEventListener('click', () => {
+      const apiKey = document.getElementById('apiKeyInput').value;
+      // Send a request to trigger the reboot with the entered API key
+      fetch('/reboot', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'API-Key': apiKey
+        }
+      })
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('message').textContent = data; // Display a message from the server
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          document.getElementById('message').textContent = 'An error occurred while rebooting the server.';
+        });
+    });
+
+
+  document.getElementById('enableIpForwardingButton').addEventListener('click', () => {
+      const apiKey = document.getElementById('apiKeyInput').value;
+      // Send a request to enable IP forwarding with the entered API key
+      fetch('/enable-ip-forwarding', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'API-Key': apiKey
+        }
+      })
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('message').textContent = data; // Display a message from the server
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          document.getElementById('message').textContent = 'An error occurred while enabling IP forwarding.';
+        });
+    });
+
+
+
+  </script>
+</body>
+</html>
+
+
+
