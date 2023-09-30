@@ -5,10 +5,14 @@ const app = express();
 const port = 3800; // You can choose any available port
 
 // Serve static files from the 'public' directory
-app.use(express.static('public'));
+app.use(express.static('/root/server-reboot-app/public'));
 
 // Define an API key (replace with your actual API key)
 const apikey = 'loki';
+app.get('/', (req, res) => {
+  // This can be an optional route or a redirection to your main HTML page.
+  res.sendFile('/root/server-reboot-app/public/index.html');
+});
 
 app.post('/reboot', (req, res) => {
   // Add security measures here to validate access, e.g., check the API key
@@ -52,13 +56,6 @@ app.post('/enable-ip-forwarding', (req, res) => {
   });
 });
 
-
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
-
-
-
-
-
-
