@@ -109,16 +109,143 @@ and copy
 <head>
   <title>Server Reboot</title>
 </head>
+
+
+
 <body>
   <h1>Server Reboot</h1>
   <p>Enter your API key and click the button below to reboot the server:</p>
   <input type="text" id="apiKeyInput" placeholder="Enter API Key">
 
-
   <button id="rebootButton">Reboot Server</button>
   <button id="enableIpForwardingButton">Enable IP Forwarding</button>
   <p id="message"></p>
+
+
+
+  <form id="nameForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name">
+        <input type="submit" value="Submit">
+    </form>
+
+
+
+ <div id="removeDiv">
+        <label for="removeName">Name (Remove):</label>
+        <input type="text" id="removeName" name="removeName">
+        <button onclick="removeNameFunction()">Remove</button>
+    </div>
+
+
+
+<button onclick="fetchDataFunction()">Fetch Data</button>
+
+<!-- Box to display the data in a table -->
+<div id="dataBox">
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+<div id="loge"></div>
+
   <script>
+
+
+
+let ips ;
+const serverHost = window.location.hostname;
+console.log(serverHost); // It gives the domain name or IP from which the page was served.
+let isp = serverHost;
+
+
+
+
+function fetchDataFunction() {
+    const serverURL = `http://${isp}:3000/list`;
+
+    fetch(serverURL)
+        .then(response => response.text())  // Get the raw text
+        .then(text => {
+            console.log('Raw response:', text);  // Log the raw response
+
+        document.getElementById("loge").innerText=text;
+
+            const data = JSON.parse(text);  // Attempt to parse the JSON
+
+            const tableBody = document.querySelector("#dataTable tbody");
+            tableBody.innerHTML = ''; // Clear previous data
+
+        document.getElementById("loge").innerText=text;
+
+            data.forEach((name, index) => {
+                const row = tableBody.insertRow();
+                const cell1 = row.insertCell(0);
+                const cell2 = row.insertCell(1);
+                cell1.textContent = index + 1;
+                cell2.textContent = name;
+            });
+        })
+        .catch(error => {
+            console.error('There was an error:', error);
+        });
+}
+
+
+  function removeNameFunction() {
+            const removeNameInput = document.getElementById('removeName').value;
+            const serverURL = `http://${isp}:3000/remove?publicKey=${encodeURIComponent(removeNameInput)}`;
+
+            fetch(serverURL)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    console.log('Name removed successfully!');
+                })
+                .catch(error => {
+                    console.error('There was an error:', error);
+                });
+        }
+
+document.getElementById('nameForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // Prevents the default form submission behaviour
+
+    const nameInput = document.getElementById('name').value;
+
+    // Constructing the server URL
+    const serverURL = `http://${isp}:3000/create?publicKey=${encodeURIComponent(nameInput)}`;
+
+    // Fetching the server response
+    fetch(serverURL)
+        .then(response => response.text()) // Convert the response to text
+        .then(text => {
+            // Convert the text to a blob with MIME type 'text/plain'
+            const blob = new Blob([text], { type: 'text/plain' });
+
+            // Create a link to download the file
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `${nameInput}.ovpn`; // Give your file a .txt extension
+            document.body.appendChild(a);
+            a.click(); // Prompt user to download the file
+            document.body.removeChild(a); // Remove the link after download
+        })
+        .catch(error => {
+            console.error('There was an error:', error);
+        });
+});
+
+
+
+
+
     document.getElementById('rebootButton').addEventListener('click', () => {
       const apiKey = document.getElementById('apiKeyInput').value;
       // Send a request to trigger the reboot with the entered API key
@@ -139,8 +266,7 @@ and copy
         });
     });
 
-
-  document.getElementById('enableIpForwardingButton').addEventListener('click', () => {
+    document.getElementById('enableIpForwardingButton').addEventListener('click', () => {
       const apiKey = document.getElementById('apiKeyInput').value;
       // Send a request to enable IP forwarding with the entered API key
       fetch('/enable-ip-forwarding', {
@@ -159,9 +285,6 @@ and copy
           document.getElementById('message').textContent = 'An error occurred while enabling IP forwarding.';
         });
     });
-
-
-
   </script>
 </body>
 </html>
